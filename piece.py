@@ -1,21 +1,23 @@
 import random
 
-shapes = [
-    [[1, 1, 1], [0, 1, 0]], # T
-    [[1, 1], [1, 1]],       # O
-    [[1, 1, 1, 1]],         # I
-    [[1, 1, 0], [0, 1, 1]], # S
-    [[0, 1, 1], [1, 1, 0]], # Z
-    [[1, 1, 1], [1, 0, 0]], # L
-    [[1, 1, 1], [0, 0, 1]]  # J
-]
 
-types = [0, 1, 2, 3, 4]
+types = [0, 1, 2, 3, 4, 5]
 
 class Piece:
+    shapes = [
+        [[1, 1, 1], [0, 1, 0]],  # T
+        [[1, 1], [1, 1]],  # O
+        [[1, 1, 1, 1]],  # I
+        [[1, 1, 0], [0, 1, 1]],  # S
+        [[0, 1, 1], [1, 1, 0]],  # Z
+        [[1, 1, 1], [1, 0, 0]],  # L
+        [[1, 1, 1], [0, 0, 1]]  # J
+    ]
+
     def __init__(self, shape_index, width):
-        self.shape = shapes[shape_index]
-        self.type = random.choice(types)
+        #self.shape = self.shapes[shape_index]
+        self.shape = shape_index
+        self.type = random.randint(1, len(types) - 1)
         self.x = width // 2 - len(self.shape[0]) // 2
         self.y = 0
 
