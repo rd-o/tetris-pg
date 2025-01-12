@@ -7,8 +7,6 @@ from piece import Piece
 from draw_tetris import DrawTetris
 import time
 
-from test import last_time
-
 shapes = [
     [[1, 1, 1], [0, 1, 0]],  # T
     [[1, 1], [1, 1]],  # O
@@ -289,17 +287,17 @@ class TetrisGame:
     #        self.draw_tetris_instance.update()
     #        return self.run
 
-    def check_movement(self, chromosome):
-        #self.move_time += time.time() - self.last_time
-        current_time = time.time()
-        elapsed_time = current_time - self.last_time
-        print()
-        if elapsed_time / 1000 >= self.move_speed:
-            self.last_time = current_time
-            move = chromosome.choose_move(self, self.grid)  # Implement `choose_move` in chromosome
-            # print('move: ')
-            # print(move)
-            self.move(move)
+#    def check_movement(self, chromosome):
+#        #self.move_time += time.time() - self.last_time
+#        current_time = time.time()
+#        elapsed_time = current_time - self.last_time
+#        print()
+#        if elapsed_time / 1000 >= self.move_speed:
+#            self.last_time = current_time
+#            move = chromosome.choose_move(self, self.grid)  # Implement `choose_move` in chromosome
+#            # print('move: ')
+#            # print(move)
+#            self.move(move)
 
     def update_with_multiple_graphics(self):
         self.create_grid()
@@ -309,7 +307,7 @@ class TetrisGame:
         #print(self.fall_time)
         #self.draw_tetris_instance.clock.tick()
 
-        if elapsed_time / 1000 >= self.fall_speed:
+        if elapsed_time >= self.fall_speed:
             self.last_time = current_time_1
             #self.fall_time = 0
             self.run = self.update_game_state()
