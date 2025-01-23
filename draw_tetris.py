@@ -150,12 +150,8 @@ class DrawTetris:
                 #pygame.draw.rect(self.screen, color, rect, 0)  # Draw cell
                 #pygame.draw.rect(self.screen, (128, 128, 128), rect, 1)  # Draw grid outline
                 block = self.blocks[cell]
-                y1 = y * self.block_size
-                y2 = (y + 1) * self.block_size
-                x1 = x * self.block_size
-                x2 = (x + 1) * self.block_size
-                self.canvas[y * self.block_size:(y + 1) * self.block_size,
-                x * self.block_size:(x + 1) * self.block_size] = block
+                self.canvas[y * self.block_size + y_start:(y + 1) * self.block_size + y_start,
+                x * self.block_size + x_start :(x + 1) * self.block_size + x_start] = block
         #self.update_texture(self.texture_id, self.canvas)
 
 #    def draw_current_piece(self, game_instance, draw_index):
@@ -174,27 +170,38 @@ class DrawTetris:
 
         return x_start, y_start
 
-    def draw_current_piece(self, game_instance, draw_index):
+    def draw_current_piece(self, grid, current_piece, draw_index):
         """
         Draws the current piece of a Tetris game at a position determined by draw_index.
 
         :param game_instance: The game instance containing the current piece.
         :param draw_index: The index determining the position of the game on the screen.
         """
-        x_start, y_start = self.calculate_coord_start(game_instance.grid, draw_index)
+        #print("draw_current_piece", game_instance.current_piece.shape)
+        x_start, y_start = self.calculate_coord_start(grid, draw_index)
 
         # Draw the current piece at the calculated position
-        for y, row in enumerate(game_instance.current_piece.shape):
+        for y, row in enumerate(current_piece.shape):
             for x, cell in enumerate(row):
                 if cell:
-                    block = self.blocks[game_instance.current_piece.type]
+                    block = self.blocks[current_piece.type]
                     #self.canvas[y * self.block_size:(y + 1) * self.block_size,
                     #x * self.block_size:(x + 1) * self.block_size] = block
-                    self.canvas[(y_start + game_instance.current_piece.y + y) * self.block_size:
-                                (y_start + game_instance.current_piece.y + y + 1) * self.block_size,
-                    (x_start + game_instance.current_piece.x + x) * self.block_size:
-                    (x_start + game_instance.current_piece.x + x + 1) * self.block_size] = block
+                    try:
+                        self.canvas[(current_piece.y + y) * self.block_size + y_start:
+                                    (current_piece.y + y + 1) * self.block_size + y_start,
+                        (current_piece.x + x) * self.block_size + x_start:
+                        (current_piece.x + x + 1) * self.block_size + x_start] = block
 
+                    except ValueError as e:
+                        print(f"Error: {e}")
+                        print(f"Block shape: {block.shape}")
+                        print(f"Canvas shape: {self.canvas.shape}")
+                        print(
+                            f"Y range: {(current_piece.y + y) * self.block_size + y_start} to {(current_piece.y + y + 1) * self.block_size + y_start}")
+                        print(
+                            f"X range: {(current_piece.x + x) * self.block_size + x_start} to {(current_piece.x + x + 1) * self.block_size + x_start}")
+                        raise
 
         self.update_texture(self.texture_id, self.canvas)
 
@@ -249,6 +256,10 @@ class DrawTetris:
         pass
         #pygame.display.update()
 
+    def close(self):
+        if self.window:
+            glfw.set_window_should_close(self.window, True)
+            glfw.terminate()
     #def get_clock(self):
     #    return self.
 

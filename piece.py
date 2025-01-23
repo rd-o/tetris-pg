@@ -45,5 +45,10 @@ class Piece:
         for y, row in enumerate(self.shape):
             for x, cell in enumerate(row):
                 if cell:
-                    grid[y + self.y][x + self.x] = self.type
+                    new_y = y + self.y
+                    new_x = x + self.x
+                    if 0 <= new_y < len(grid) and 0 <= new_x < len(grid[0]):
+                        grid[y + self.y][x + self.x] = self.type
+                    else:
+                        print("Error: Locking piece out of bounds")
 

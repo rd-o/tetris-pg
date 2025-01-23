@@ -1,10 +1,7 @@
 import random
 import copy
 
-from anyio import current_time
-
 from piece import Piece
-from draw_tetris import DrawTetris
 import time
 
 shapes = [
@@ -28,6 +25,9 @@ class TetrisGame:
         self.width = width
         self.height = height
         self.locked_positions = [[0 for _ in range(width)] for _ in range(height)]
+        self.manual_instance = False
+        self.lines = 0
+        self.level = 0
         # self.initialize_game()
 
     def lock(self):
@@ -44,14 +44,14 @@ class TetrisGame:
         self.current_piece = Piece(random.choice(shapes), self.width)
 
     def __move_piece_left(self, grid, current_piece):
-        if not self.current_piece.collision(-1, 0, grid):
+        if not current_piece.collision(-1, 0, grid):
             current_piece.x -= 1
 
     def move_piece_left(self):
         self.__move_piece_left(self.grid, self.current_piece)
 
     def __move_piece_right(self, grid, current_piece):
-        if not self.current_piece.collision(1, 0, grid):
+        if not current_piece.collision(1, 0, grid):
             current_piece.x += 1
 
     def move_piece_right(self):
@@ -100,6 +100,7 @@ class TetrisGame:
 
     def update_game_state(self):
         if not self.current_piece.collision(0, 1, self.grid):
+            print("move piece")
             self.current_piece.y += 1
         else:
             self.current_piece.lock(self.locked_positions)
@@ -127,6 +128,7 @@ class TetrisGame:
             locked_positions[0] = [0 for _ in range(self.width)]
 
         score += cleared * 100  # Update score based on cleared rows
+        self.lines += cleared
         return score
 
     def calculate_score(self):
@@ -150,48 +152,56 @@ class TetrisGame:
         # return ['left', 'right', 'rotate']
 
     def move(self, move):
-        if move == "left":
+        if move == "Left":
             self.move_piece_left()
-        elif move == "right":
+        elif move == "Right":
             self.move_piece_right()
-        elif move == "rotate":
+        elif move == "Rotate":
             self.rotate_piece()
-        elif move == "down":
+        elif move == "Down":
             self.move_piece_down()
+
+    def copy_variables_for_simulation(self):
+        self.simulated_piece = copy.deepcopy(self.current_piece)
+        self.simulated_locked_positions = copy.deepcopy(self.locked_positions)  # [row[:] for row in self.locked_positions]
 
     def simulate_move(self, move, simulated_grid):
         # simulated_grid = [row[:] for row in self.grid]
-        simulated_piece = copy.deepcopy(self.current_piece)  # Assume this is an object with piece shape data
-        simulated_locked_positions = copy.deepcopy(self.locked_positions)  # [row[:] for row in self.locked_positions]
+        #simulated_piece = copy.deepcopy(self.current_piece)  # Assume this is an object with piece shape data
+        #simulated_locked_positions = copy.deepcopy(self.locked_positions)  # [row[:] for row in self.locked_positions]
         simulated_score = 0
 
-        if move == "left":
-            self.__move_piece_left(simulated_grid, simulated_piece)
-        elif move == "right":
-            self.__move_piece_right(simulated_grid, simulated_piece)
-        elif move == "rotate":
-            self.__rotate_piece(simulated_grid, simulated_piece)
-        elif move == "down":
-            self.__move_piece_down(simulated_grid, simulated_piece)
+        if move == "Left":
+            self.__move_piece_left(simulated_grid, self.simulated_piece)
+        elif move == "Right":
+            self.__move_piece_right(simulated_grid, self.simulated_piece)
+        elif move == "Rotate":
+            self.__rotate_piece(simulated_grid, self.simulated_piece)
+        elif move == "Down":
+            self.__move_piece_down(simulated_grid, self.simulated_piece)
 
-        simulated_piece.lock(simulated_locked_positions)
-        self.__calculate_score(simulated_grid, simulated_locked_positions, simulated_score)
+        self.simulated_piece.lock(self.simulated_locked_positions)
+
+        #just to test simulation
+        #self.draw_tetris_instance.draw_grid(self.grid, self.draw_index)
+        #self.draw_tetris_instance.draw_current_piece(self.grid, self.simulated_piece, self.draw_index)
+        #self.__calculate_score(simulated_grid, simulated_locked_positions, simulated_score)
 
         # lines_cleared = self.__calculate_lines_cleared(simulated_grid)
         # height = self.__calculate_height(simulated_grid)
         # holes = self.__calculate_holes(simulated_grid)
         # wells = self.__calculate_wells(simulated_grid)
-        lines_cleared = self.__calculate_lines_cleared(simulated_locked_positions)
-        height = self.__calculate_height(simulated_locked_positions)
-        holes = self.__calculate_holes(simulated_locked_positions)
-        wells = self.__calculate_wells(simulated_locked_positions)
+        #lines_cleared = self.__calculate_lines_cleared(simulated_locked_positions)
+        #height = self.__calculate_height(simulated_locked_positions)
+        #holes = self.__calculate_holes(simulated_locked_positions)
+        #wells = self.__calculate_wells(simulated_locked_positions)
 
-        return {
-            "lines_cleared": lines_cleared,
-            "height": height,
-            "holes": holes,
-            "wells": wells,
-        }
+        #return {
+        #    "lines_cleared": lines_cleared,
+        #    "height": height,
+        #    "holes": holes,
+        #    "wells": wells,
+        #}
 
     def __calculate_lines_cleared(self, grid):
         """Count the number of full lines cleared."""
@@ -226,28 +236,15 @@ class TetrisGame:
                         wells += 1
         return wells
 
-#    def setup_pygame(self, draw_tetris_instance):
-#        # Screen dimensions
-#        screen_width = 300
-#        screen_height = 600
-#        block_size = 8
-#
-#        # Game variables
-#        self.fall_time = 0
-#        self.score = 0
-#        self.draw_tetris_instance = DrawTetris(screen_width, screen_height, block_size)
-#        # self.clock = self.draw_tetris_instance.clock()
-#        self.run = True
-#        self.fall_speed = 0.27
-#        #self.fall_speed = 0.03
-#        self.fall_time = 0
-#
-#        self.move_time = 0
-#        # self.move_speed = 1
-#        self.move_speed = 0.1
-#        self.draw_index = draw_tetris_instance.get_new_index()
+    def setup_nn_ga_instance(self, draw_tetris_instance, draw_index):
+        self.score = 0
+        self.draw_tetris_instance = draw_tetris_instance
+        self.draw_tetris_instance.game_instance = self
+        # self.clock = self.draw_tetris_instance.clock()
+        self.run = True
+        self.draw_index = draw_index
 
-    def setup_instance(self, draw_tetris_instance, draw_index):
+    def setup_instance(self, draw_tetris_instance, draw_index, chromosome):
         self.fall_time = 0
         self.score = 0
         self.draw_tetris_instance = draw_tetris_instance
@@ -265,58 +262,76 @@ class TetrisGame:
         # self.move_speed = 0.1
         self.move_speed = 0.005
         self.draw_index = draw_index
-        self.last_time = time.time()
+        self.fall_last_time = time.time()
+        self.move_last_time = self.fall_last_time
+        self.chromosome = chromosome
 
-    #    def update_with_graphics(self):
-    #        self.create_grid()
-    #        self.fall_time += self.clock.get_rawtime()
-    #        self.clock.tick()
-    #
-    #        if self.fall_time / 1000 >= self.fall_speed:
-    #            self.fall_time = 0
-    #            self.run = self.update_game_state()
-    #
-    #        self.draw_tetris_instance.key_events(self)
-    #
-    #        self.draw_tetris_instance.draw_grid(self.grid)
-    #        self.draw_tetris_instance.draw_current_piece(self)
-    #
-    #        score = self.calculate_score()
-    #        self.draw_tetris_instance.draw_text(f"Score: {score}", 30, (255, 255, 255), 10, 10)
-    #        #clear_rows(grid, game_instance.locked_positions)
-    #        self.draw_tetris_instance.update()
-    #        return self.run
+    def check_movement(self, chromosome):
+        #self.move_time += time.time() - self.last_time
+        current_time = time.time()
+        elapsed_time = current_time - self.fall_last_time
+        if elapsed_time >= self.move_speed:
+            self.fall_last_time = current_time
+            move = chromosome.choose_move(self, self.grid)  # Implement `choose_move` in chromosome
+            # print('move: ')
+            # print(move)
+            self.move(move)
 
-#    def check_movement(self, chromosome):
-#        #self.move_time += time.time() - self.last_time
-#        current_time = time.time()
-#        elapsed_time = current_time - self.last_time
-#        print()
-#        if elapsed_time / 1000 >= self.move_speed:
-#            self.last_time = current_time
-#            move = chromosome.choose_move(self, self.grid)  # Implement `choose_move` in chromosome
-#            # print('move: ')
-#            # print(move)
-#            self.move(move)
+    def update_with_single_graphic(self):
+        self.create_grid()
+
+        #self.run = self.update_game_state()
+
+        self.draw_tetris_instance.draw_grid(self.grid, self.draw_index)
+        self.draw_tetris_instance.draw_current_piece(self.grid, self.current_piece, self.draw_index)
+
+        score = self.calculate_score()
+        self.draw_tetris_instance.draw_text(f"Score: {score}", 30, (255, 255, 255), 10, 10)
+        print("Score: ", score)
+        self.draw_tetris_instance.update()
+        return self.run
+
+    def stop(self):
+        pass
+
+    def reset_game(self):
+        self.current_piece = Piece(random.choice(shapes), self.width)
+        self.next_piece = Piece(random.choice(shapes), self.width)
+        self.game_over = False
+        self.score = 0
+        self.locked_positions = [[0 for _ in range(self.width)] for _ in range(self.height)]
+        self.manual_instance = False
+        self.lines = 0
+        self.level = 0
 
     def update_with_multiple_graphics(self):
         self.create_grid()
         #self.fall_time += time.time() - self.last_time
         current_time_1 = time.time()
-        elapsed_time = current_time_1 - self.last_time
+        fall_elapsed_time = current_time_1 - self.fall_last_time
+        move_elapsed_time = current_time_1 - self.move_last_time
         #print(self.fall_time)
         #self.draw_tetris_instance.clock.tick()
 
-        if elapsed_time >= self.fall_speed:
-            self.last_time = current_time_1
+        if fall_elapsed_time >= self.fall_speed:
+            self.fall_last_time = current_time_1
             #self.fall_time = 0
             self.run = self.update_game_state()
+            self.game_over = not self.run
+            send_draw_grid = True
 
         # draw_tetris_instance.key_events(self)
         #self.grid[0][0] = 1
+        if not self.manual_instance and move_elapsed_time >= self.move_speed:
+            self.move_last_time = current_time_1
+            #move = self.chromosome.choose_move(self, self.grid)  # Implement `choose_move` in chromosome
+            #print('move: ')
+            #print(move)
+            #self.move(move)
+            send_draw_piece = True
 
         self.draw_tetris_instance.draw_grid(self.grid, self.draw_index)
-        self.draw_tetris_instance.draw_current_piece(self, self.draw_index)
+        self.draw_tetris_instance.draw_current_piece(self.grid, self.current_piece, self.draw_index)
 
         score = self.calculate_score()
         self.draw_tetris_instance.draw_text(f"Score: {score}", 30, (255, 255, 255), 10, 10)

@@ -24,7 +24,7 @@ def main():
     # draw_tetris_instance.draw_splash_screen()
 
     game_instance = TetrisGame(10, 20)
-    game_instance.setup_instance(draw_tetris_instance, 0)
+    game_instance.setup_instance(draw_tetris_instance, 0, None)
 
     while run:
         run = game_instance.update_with_multiple_graphics()
