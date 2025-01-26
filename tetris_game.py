@@ -330,6 +330,10 @@ class TetrisGame:
             #self.move(move)
             send_draw_piece = True
 
+        self.draw_tetris_instance.draw_background()
+        self.draw_tetris_instance.draw_number(self.score, 100, 4)
+        self.draw_tetris_instance.draw_number(0, 100, 25)
+        self.draw_tetris_instance.draw_number(self.lines, 100, 44)
         self.draw_tetris_instance.draw_grid(self.grid, self.draw_index)
         self.draw_tetris_instance.draw_current_piece(self.grid, self.current_piece, self.draw_index)
 

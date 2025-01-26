@@ -9,14 +9,53 @@ class DrawTetris:
         self.screen_height = screen_height
         self.block_size = block_size
         self.blocks = self.load_and_slice_png("pixels.png")  # Replace with the correct path
+        self.numbers = self.load_and_slice_numbers("numbers_t.png")
         self.canvas = None
         self.texture_id = None
         self.window = None
         self.init_opengl(screen_width, screen_height)
         self.game_instance = None
+        self.background = self.load_background("background.png")
 
+    def load_background(self, file_path):
+        """Load the background image."""
+        return Image.open(file_path).convert('RGB')
 
-#    def init_opengl(self, screen_width, screen_height):
+    def draw_background(self):
+        """Draw the background image onto the canvas."""
+        if self.background:
+            bg_array = np.array(self.background, dtype=np.uint8)
+            self.canvas[:bg_array.shape[0], :bg_array.shape[1]] = bg_array
+
+    def draw_number(self, number, x_start, y_start):
+        # Convert the number to a string and pad with zeros to ensure it is 6 digits long
+        number_str = f"{number:06d}"
+
+        # Iterate over each digit
+        for i, digit in enumerate(number_str):
+            digit_index = int(digit)
+            digit_sprite = self.numbers[digit_index]
+
+            # Calculate the position for the current digit
+            x_pos = x_start + i * (8 + 2)  # 8 pixels for the digit width, 2 pixels for the space
+
+            # Draw the digit on the canvas
+            self.canvas[y_start:y_start + 14, x_pos:x_pos + 8] = digit_sprite
+
+    def load_and_slice_numbers(self, file_path, block_width=8, block_height=14):
+        image = Image.open(file_path).convert('RGB')
+        img_width, img_height = image.size
+        assert img_width % block_width == 0 and img_height % block_height == 0, \
+            "Image dimensions must be a multiple of block size"
+
+        numbers = []
+        for y in range(0, img_height, block_height):
+            for x in range(0, img_width, block_width):
+                number = np.array(image.crop((x, y, x + block_width, y + block_height)), dtype=np.uint8)
+                numbers.append(number)
+        return numbers
+
+    #    def init_opengl(self, screen_width, screen_height):
 #        if not glfw.init():
 #            raise Exception("Failed to initialize GLFW")
 #
@@ -141,6 +180,8 @@ class DrawTetris:
         """
 
         x_start, y_start = self.calculate_coord_start(grid, draw_index)
+        x_start += 2
+        y_start += 2
 
         # Draw the grid at the calculated position
         for y, row in enumerate(grid):
@@ -179,6 +220,8 @@ class DrawTetris:
         """
         #print("draw_current_piece", game_instance.current_piece.shape)
         x_start, y_start = self.calculate_coord_start(grid, draw_index)
+        x_start += 2
+        y_start += 2
 
         # Draw the current piece at the calculated position
         for y, row in enumerate(current_piece.shape):
