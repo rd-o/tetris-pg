@@ -38,11 +38,8 @@ block_size = 8
 
 
 def eval_network(epoch, child_index, child_model):
-    #tetris = tetris.game_wrapper()
-    #tetris.start_game()
     draw_tetris_instance = DrawTetris(screen_width, screen_height, block_size)
     tetris = TetrisGame(10, 20)
-    #tetris.setup_nn_ga_instance(draw_tetris_instance, 0)
     tetris.setup_instance(draw_tetris_instance, 0, None)
 
 
@@ -58,12 +55,10 @@ def eval_network(epoch, child_index, child_model):
         best_action = {'Turn': 0, 'Left': 0, 'Right': 0}
         begin_state = io.BytesIO()
         begin_state.seek(0)
-        #tetris.save_state(begin_state)
         # Number of lines at the start
         s_lines = tetris.lines
 
         # Determine how many possible rotations we need to check for the block
-        #block_tile = tetris.get_memory_value(0xc203)
         block_tile = tetris.current_piece
         turns_needed = check_needed_turn(block_tile)
         lefts_needed, rights_needed = check_needed_dirs(block_tile)

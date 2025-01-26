@@ -17,7 +17,6 @@ shapes = [
 
 class TetrisGame:
     def __init__(self, width, height):
-        # self.grid = [[0 for _ in range(10)] for _ in range(20)]
         self.current_piece = Piece(random.choice(shapes), width)
         self.next_piece = Piece(random.choice(shapes), width)
         self.game_over = False
@@ -28,20 +27,9 @@ class TetrisGame:
         self.manual_instance = False
         self.lines = 0
         self.level = 0
-        # self.initialize_game()
 
     def lock(self):
         self.current_piece.lock(self.locked_positions)
-
-    def initialize_game(self):
-        # Initialize the grid, current piece, and other game state variables
-        self.grid = [[0 for _ in range(10)] for _ in range(20)]  # Example 10x20 grid
-        self.spawn_new_piece()
-
-    def spawn_new_piece(self):
-        # Logic to add a new piece to the grid
-
-        self.current_piece = Piece(random.choice(shapes), self.width)
 
     def __move_piece_left(self, grid, current_piece):
         if not current_piece.collision(-1, 0, grid):
@@ -66,11 +54,6 @@ class TetrisGame:
 
     def move_piece_down(self):
         self.__move_piece_down(self.grid, self.current_piece)
-
-    #    def __rotate_piece(self, grid, current_piece):
-    #        if not current_piece.collision(0, 0, grid):
-    #            for _ in range(3):
-    #                current_piece.rotate()
 
     def __rotate_piece(self, grid, current_piece):
         original_shape = current_piece.shape[:]
@@ -149,7 +132,6 @@ class TetrisGame:
     def get_possible_moves(self):
         # Returns a list of all valid moves
         return ['left', 'right', 'rotate', 'down']
-        # return ['left', 'right', 'rotate']
 
     def move(self, move):
         if move == "Left":
@@ -166,11 +148,6 @@ class TetrisGame:
         self.simulated_locked_positions = copy.deepcopy(self.locked_positions)  # [row[:] for row in self.locked_positions]
 
     def simulate_move(self, move, simulated_grid):
-        # simulated_grid = [row[:] for row in self.grid]
-        #simulated_piece = copy.deepcopy(self.current_piece)  # Assume this is an object with piece shape data
-        #simulated_locked_positions = copy.deepcopy(self.locked_positions)  # [row[:] for row in self.locked_positions]
-        simulated_score = 0
-
         if move == "Left":
             self.__move_piece_left(simulated_grid, self.simulated_piece)
         elif move == "Right":
@@ -181,27 +158,6 @@ class TetrisGame:
             self.__move_piece_down(simulated_grid, self.simulated_piece)
 
         self.simulated_piece.lock(self.simulated_locked_positions)
-
-        #just to test simulation
-        #self.draw_tetris_instance.draw_grid(self.grid, self.draw_index)
-        #self.draw_tetris_instance.draw_current_piece(self.grid, self.simulated_piece, self.draw_index)
-        #self.__calculate_score(simulated_grid, simulated_locked_positions, simulated_score)
-
-        # lines_cleared = self.__calculate_lines_cleared(simulated_grid)
-        # height = self.__calculate_height(simulated_grid)
-        # holes = self.__calculate_holes(simulated_grid)
-        # wells = self.__calculate_wells(simulated_grid)
-        #lines_cleared = self.__calculate_lines_cleared(simulated_locked_positions)
-        #height = self.__calculate_height(simulated_locked_positions)
-        #holes = self.__calculate_holes(simulated_locked_positions)
-        #wells = self.__calculate_wells(simulated_locked_positions)
-
-        #return {
-        #    "lines_cleared": lines_cleared,
-        #    "height": height,
-        #    "holes": holes,
-        #    "wells": wells,
-        #}
 
     def __calculate_lines_cleared(self, grid):
         """Count the number of full lines cleared."""
@@ -240,7 +196,6 @@ class TetrisGame:
         self.score = 0
         self.draw_tetris_instance = draw_tetris_instance
         self.draw_tetris_instance.game_instance = self
-        # self.clock = self.draw_tetris_instance.clock()
         self.run = True
         self.draw_index = draw_index
 
@@ -249,7 +204,6 @@ class TetrisGame:
         self.score = 0
         self.draw_tetris_instance = draw_tetris_instance
         self.draw_tetris_instance.game_instance = self
-        # self.clock = self.draw_tetris_instance.clock()
         self.run = True
         self.fall_speed = 0.27
         # self.fall_speed = 0.03
@@ -267,28 +221,20 @@ class TetrisGame:
         self.chromosome = chromosome
 
     def check_movement(self, chromosome):
-        #self.move_time += time.time() - self.last_time
         current_time = time.time()
         elapsed_time = current_time - self.fall_last_time
         if elapsed_time >= self.move_speed:
             self.fall_last_time = current_time
             move = chromosome.choose_move(self, self.grid)  # Implement `choose_move` in chromosome
-            # print('move: ')
-            # print(move)
             self.move(move)
 
     def update_with_single_graphic(self):
         self.create_grid()
 
-        #self.run = self.update_game_state()
-
         self.draw_tetris_instance.draw_grid(self.grid, self.draw_index)
         self.draw_tetris_instance.draw_current_piece(self.grid, self.current_piece, self.draw_index)
 
         score = self.calculate_score()
-        self.draw_tetris_instance.draw_text(f"Score: {score}", 30, (255, 255, 255), 10, 10)
-        print("Score: ", score)
-        self.draw_tetris_instance.update()
         return self.run
 
     def stop(self):
@@ -306,29 +252,17 @@ class TetrisGame:
 
     def update_with_multiple_graphics(self):
         self.create_grid()
-        #self.fall_time += time.time() - self.last_time
         current_time_1 = time.time()
         fall_elapsed_time = current_time_1 - self.fall_last_time
         move_elapsed_time = current_time_1 - self.move_last_time
-        #print(self.fall_time)
-        #self.draw_tetris_instance.clock.tick()
 
         if fall_elapsed_time >= self.fall_speed:
             self.fall_last_time = current_time_1
-            #self.fall_time = 0
             self.run = self.update_game_state()
             self.game_over = not self.run
-            send_draw_grid = True
 
-        # draw_tetris_instance.key_events(self)
-        #self.grid[0][0] = 1
         if not self.manual_instance and move_elapsed_time >= self.move_speed:
             self.move_last_time = current_time_1
-            #move = self.chromosome.choose_move(self, self.grid)  # Implement `choose_move` in chromosome
-            #print('move: ')
-            #print(move)
-            #self.move(move)
-            send_draw_piece = True
 
         self.draw_tetris_instance.draw_background()
         self.draw_tetris_instance.draw_number(self.score, 100, 4)
@@ -338,6 +272,4 @@ class TetrisGame:
         self.draw_tetris_instance.draw_current_piece(self.grid, self.current_piece, self.draw_index)
 
         score = self.calculate_score()
-        self.draw_tetris_instance.draw_text(f"Score: {score}", 30, (255, 255, 255), 10, 10)
-        self.draw_tetris_instance.update()
         return self.run

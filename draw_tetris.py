@@ -55,28 +55,6 @@ class DrawTetris:
                 numbers.append(number)
         return numbers
 
-    #    def init_opengl(self, screen_width, screen_height):
-#        if not glfw.init():
-#            raise Exception("Failed to initialize GLFW")
-#
-#        # Create a window
-#        self.window = glfw.create_window(screen_width, screen_height, "OpenGL Canvas", None, None)
-#        if not self.window:
-#            glfw.terminate()
-#            raise Exception("Failed to create GLFW window")
-#
-#        # Make the OpenGL context current
-#        glfw.make_context_current(self.window)
-#        glClearColor(0.0, 0.0, 0.0, 1.0)
-#        glViewport(0, 0, 200, 200)
-#        glOrtho(0, 100, 100, 0, -1, 1)
-#
-#        # Create texture and canvas
-#        self.texture_id = self.create_texture()
-#        self.canvas = np.zeros((200, 200, 3), dtype=np.uint8)  # 100x100 blocks
-#        self.update_texture(self.texture_id, self.canvas)
-#        glfw.set_key_callback(self.window, self.key_events)
-
     def init_opengl(self, screen_width, screen_height):
         if not glfw.init():
             raise Exception("Failed to initialize GLFW")
@@ -164,13 +142,6 @@ class DrawTetris:
         y = index // width
         return x, y
 
-#    def draw_grid(self, grid, draw_index):
-#        for y, row in enumerate(grid):
-#            for x, cell in enumerate(row):
-#                color = cell if isinstance(cell, tuple) else (0, 0, 0)
-#                pygame.draw.rect(self.screen, color, (x * self.block_size, y * self.block_size, self.block_size, self.block_size), 0)
-#                pygame.draw.rect(self.screen, (128, 128, 128), (x * self.block_size, y * self.block_size, self.block_size, self.block_size), 1)
-
     def draw_grid(self, grid, draw_index):
         """
         Draws a grid at a specific position determined by draw_index.
@@ -186,20 +157,10 @@ class DrawTetris:
         # Draw the grid at the calculated position
         for y, row in enumerate(grid):
             for x, cell in enumerate(row):
-                #color = cell if isinstance(cell, tuple) else (0, 0, 0)  # Default to black if not a tuple
-                #rect = (x_start + x * self.block_size, y_start + y * self.block_size, self.block_size, self.block_size)
-                #pygame.draw.rect(self.screen, color, rect, 0)  # Draw cell
-                #pygame.draw.rect(self.screen, (128, 128, 128), rect, 1)  # Draw grid outline
                 block = self.blocks[cell]
                 self.canvas[y * self.block_size + y_start:(y + 1) * self.block_size + y_start,
                 x * self.block_size + x_start :(x + 1) * self.block_size + x_start] = block
-        #self.update_texture(self.texture_id, self.canvas)
 
-#    def draw_current_piece(self, game_instance, draw_index):
-#            for y, row in enumerate(game_instance.current_piece.shape):
-#                for x, cell in enumerate(row):
-#                    if cell:
-#                        pygame.draw.rect(self.screen, game_instance.current_piece.color, (game_instance.current_piece.x * self.block_size + x * self.block_size, game_instance.current_piece.y * self.block_size + y * self.block_size, self.block_size, self.block_size), 0)
     def calculate_coord_start(self, grid, draw_index):
         # Determine grid position based on draw_index
         cols_per_screen = self.screen_width // (len(grid[0]) * self.block_size)
@@ -218,7 +179,6 @@ class DrawTetris:
         :param game_instance: The game instance containing the current piece.
         :param draw_index: The index determining the position of the game on the screen.
         """
-        #print("draw_current_piece", game_instance.current_piece.shape)
         x_start, y_start = self.calculate_coord_start(grid, draw_index)
         x_start += 2
         y_start += 2
@@ -248,36 +208,8 @@ class DrawTetris:
 
         self.update_texture(self.texture_id, self.canvas)
 
-
-
-    def draw_splash_screen(self):
-        pass
-#        self.screen.fill((0, 0, 0))  # Fill background with black before blitting the image
-#        splash_rect = self.splash_image.get_rect(center=(self.screen_width // 2, self.screen_height // 2))
-#        self.screen.blit(self.splash_image, splash_rect)
-#        pygame.display.update()
-#
-#        waiting = True
-#        while waiting:
-#            for event in pygame.event.get():
-#                if event.type == pygame.QUIT:
-#                    pygame.quit()
-#                    quit()
-#                if event.type == pygame.KEYDOWN:
-#                    waiting = False
-
-    def draw_text(self, text, size, color, x, y):
-        pass
-        #label = self.font.render(text, 1, color)
-        #self.screen.blit(label, (x, y))
-
     def exit(self):
         pass
-        #self.screen.fill((0, 0, 0))  # Fill the screen with black before showing "Game Over"
-        #self.draw_text("Game Over", 60, (255, 0, 0), self.screen_width // 2 - 150, self.screen_height // 2 - 30)
-        #pygame.display.update()
-        #pygame.time.delay(2000)
-        #pygame.quit()
 
     def key_events(self, window, key, scancode, action, mods):
         if action == glfw.PRESS:
@@ -295,18 +227,8 @@ class DrawTetris:
         elif action == glfw.RELEASE:
             print(f"Key {key} released")
 
-    def update(self):
-        pass
-        #pygame.display.update()
 
     def close(self):
         if self.window:
             glfw.set_window_should_close(self.window, True)
             glfw.terminate()
-    #def get_clock(self):
-    #    return self.
-
-    #def get_free_space():
-        
-
-            
